@@ -1,0 +1,6 @@
+Public Class Java-example{
+
+	public static void main(string[] argm){
+	System.out.println("Hello World!");
+}
+}
