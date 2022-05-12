@@ -1,0 +1,94 @@
+package com.revature;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+public class MainDriver {
+
+    public static void readCharacterStream(String filename) {
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(filename));
+            String line = ""; // starting with an empty string.
+            while ((line = reader.readLine()) != null) { //keep reading until we find an empty line
+                System.out.println(line);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void writeCharacterStream(String filename) {
+
+        // We create a buffered write object
+        // buffered because we would like to write more than a character ata time.
+
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
+            writer.write("Hi There \n");
+            writer.write("Buffered Streams allow us to write a lot at a time.\n");
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void writeToFile(String filename) {
+
+        //Variables
+        Scanner sc = new Scanner(System.in);
+        ArrayList<String> notes = new ArrayList<String>();
+        String note;
+        boolean append;
+
+        //Determine if they want to append or overwrite
+        System.out.println("Would you like to append the file? true or false.");
+        append = Boolean.parseBoolean(sc.nextLine());
+
+        //Typing notes
+        System.out.println("Please type the notes you would like to save. Type exit! to quit");
+        do {
+            note = sc.nextLine();
+            notes.add(note);
+        } while (!note.equals("exit!"));
+
+        //Saving notes to file
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(filename, append));
+            for (String s : notes) {
+                writer.write(s + "\n");
+            }
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+    public static void main(String[] args) {
+
+        //First we define the file we want to read and write to.
+        String filename = "./Example.txt";
+
+        boolean append = false;
+        ArrayList<String> notes = new ArrayList<String>();
+        String note = "";
+        //Scanner
+        Scanner sc = new Scanner(System.in);
+
+        System.out.println("Would you like to read notes or write a note? [read/write]");
+        String readOrWrite = sc.nextLine();
+        switch(readOrWrite) {
+            case "read":
+                readCharacterStream(filename);
+                break;
+            case "write":
+                writeToFile(filename);
+
+        }
+
+    }
+}
