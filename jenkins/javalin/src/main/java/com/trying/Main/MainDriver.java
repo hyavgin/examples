@@ -180,7 +180,7 @@ public class MainDriver {
 			ctx.consumeSessionAttribute("user");
 		});
 		myApp.get("/", ctx ->{
-			ctx.result("Wow it's working");
+			ctx.result("is this still working");
 		});
 		
 		
