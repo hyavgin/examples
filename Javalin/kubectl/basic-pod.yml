@@ -1,0 +1,18 @@
+piVersion: v1 
+kind: pod
+
+metadata:
+  name: hello-pod
+  labels:
+    app: hello-demo
+
+spec:
+  restartPolicy: Never
+  containers: 
+  -name: hello-demo
+  image: hello-world
+  -containerPort:
+    resources:
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
