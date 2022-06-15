@@ -179,6 +179,10 @@ public class MainDriver {
 		myApp.get("/session/invalidate", ctx ->{
 			ctx.consumeSessionAttribute("user");
 		});
+		myApp.get("/", ctx ->{
+			ctx.result("Wow it's working");
+		});
+		
 		
 	}
 		
