@@ -1,4 +1,5 @@
 package com.trying.Main;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,8 +12,18 @@ import io.javalin.Javalin;
 import io.javalin.http.Cookie;
 import io.javalin.http.HttpCode;
 import io.javalin.plugin.metrics.MicrometerPlugin;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.binder.jvm.ClassLoaderMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
+import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics;
+import io.micrometer.core.instrument.binder.system.DiskSpaceMetrics;
+import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
+import io.micrometer.core.instrument.binder.system.UptimeMetrics;
 import io.micrometer.prometheus.PrometheusConfig;
 import io.micrometer.prometheus.PrometheusMeterRegistry;
+import io.prometheus.client.CollectorRegistry;
+import io.prometheus.client.Gauge;
 
 public class MainDriver {
 	
@@ -68,7 +79,26 @@ public class MainDriver {
 		
 		PrometheusMeterRegistry registry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
 		registry.config().commonTags("application","My-Frist-Monitored-App");
+		CollectorRegistry registry2 = new CollectorRegistry();
+		registry.config().commonTags("application","My-Frist-Monitored-App");
 		
+		new ClassLoaderMetrics().bindTo(registry);
+		new JvmMemoryMetrics().bindTo(registry);
+		new JvmGcMetrics().bindTo(registry);
+		new JvmThreadMetrics().bindTo(registry);
+		new UptimeMetrics().bindTo(registry);
+		new ProcessorMetrics().bindTo(registry);
+		new DiskSpaceMetrics(new File(System.getProperty("user.dir"))).bindTo(registry);
+		
+		//Counters for request_submit
+		Counter counter = Counter.builder("Path_request_submit").description("track number").tag("purpose", "request_submit").register(registry);
+		//Counters for request for reimbursement
+		Counter counter1 = Counter.builder("Path_request_reimbursement").description("track number").tag("purpose", "reimbursment").register(registry);
+		//Counters for request for login
+		Counter counter2 = Counter.builder("Path_request_login").description("track number").tag("purpose", "login").register(registry);
+		//Counters for request reimbursement control
+		Counter counter3 = Counter.builder("Path_request_check").description("track number").tag("purpose", "reimbursement_check").register(registry);
+		Gauge gauge= Gauge.build().name("Gauge_test").help("size").register(registry2);
 		
 		
 		Javalin myApp = Javalin.create(config ->{
@@ -80,6 +110,19 @@ public class MainDriver {
 			
 			ctx.cookieStore("FavoriteFruit","Banana");
 			ctx.cookie("FavoriteCar", "BMW");
+		} );
+		
+		myApp.get("/metrics", ctx->{
+			ctx.result(registry.scrape());
+			
+		});
+		myApp.get("/push", ctx->{
+			gauge.inc();
+			ctx.result("pushed");
+		} );
+		myApp.get("/pull", ctx->{
+			gauge.dec();
+			ctx.result("pulled");
 		} );
 			myApp.post("/fruitss",ctx ->{
 			
